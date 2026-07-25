@@ -27,8 +27,7 @@ def validate_articles(articles: list[Article]) -> None:
 
         if not article_num:
             errors.append(f"У статьи с индексом {i} отсутствует номер!")
-
-        if not ARTICLE_NUMBER_PATTERN.fullmatch(article_num):
+        elif not ARTICLE_NUMBER_PATTERN.fullmatch(article_num):
             errors.append(f"Номер элемента с индексом {i} не совпадает с паттерном!")
 
         if not title:
