@@ -7,7 +7,9 @@ from .models import Article
 
 
 ARTICLE_HEADER_PATTERN = re.compile(
-    r"^Статья\s+(?P<number>\d+(?:\.\d+)*)\.\s*(?P<title>[^\n]*)$",
+    r"^Статья[ \t]+"
+    r"(?P<number>\d+(?:\.\d+)*)\."
+    r"[ \t]*(?P<title>[^\n]*)$",
     flags=re.MULTILINE,
 )
 
@@ -71,31 +73,33 @@ def parse_articles(text: str, source: str = "Трудовой кодекс Ро�
     if not source or not source.strip():
         raise ValueError("Источник не должен быть пустым!")
     
+    source = source.strip()
+    
     matches = list(ARTICLE_HEADER_PATTERN.finditer(text))
     
     if not matches:
-        raise ValueError("В тексте не найдены заголовки статьи!")
+        raise ValueError("В тексте не найдены заголовки статей!")
     
     articles: list[Article] = []
     
     for i, match in enumerate(matches):
-        article_num = match.group("number").strip() 
+        article_num = match.group("number").strip()
         title = match.group("title").strip()
         
         content_start = match.end()
         
         if i + 1 < len(matches):
-            content_end = matches[i+1].start()
+            content_end = matches[i + 1].start()
         else:
             content_end = len(text)
             
-        content:str = text[content_start:content_end].strip()
+        content: str = text[content_start:content_end].strip()
                 
         article = Article(
             article_num=article_num,
             title=title,
             content=content,
-            source=source
+            source=source,
         )
         
         articles.append(article)
