@@ -20,34 +20,35 @@ def validate_articles(articles: list[Article]) -> None:
             errors.append(f"Элемент с индексом {i} не является объектом Article!")
             continue
 
-        article.article_num.strip()
-        article.title.strip()
-        article.content.strip()
-        article.source.strip()
+        article_num = article.article_num.strip()
+        title = article.title.strip()
+        content = article.content.strip()
+        source = article.source.strip()
 
-        if not article.article_num:
+        if not article_num:
             errors.append(f"У статьи с индексом {i} отсутствует номер!")
 
-        if not ARTICLE_NUMBER_PATTERN.fullmatch(article.article_num):
+        if not ARTICLE_NUMBER_PATTERN.fullmatch(article_num):
             errors.append(f"Номер элемента с индексом {i} не совпадает с паттерном!")
 
-        if not article.title:
-            errors.append(f"У статьи {article.article_num} отсутствует заголовок!")
+        if not title:
+            errors.append(f"У статьи {article_num} отсутствует заголовок!")
 
-        if not article.content:
-            errors.append(f"У статьи {article.article_num} отсутствует содержание!")
+        if not content:
+            errors.append(f"У статьи {article_num} отсутствует содержание!")
 
-        if not article.source:
-            errors.append(f"У статьи {article.article_num} отсутствует источник!")
+        if not source:
+            errors.append(f"У статьи {article_num} отсутствует источник!")
 
-        if article.article_num not in seen_numbers:
-            seen_numbers.add(article.article_num)
-        else:
-            duplicate_numbers.add(article.article_num)
+        if article_num:
+            if article_num not in seen_numbers:
+                seen_numbers.add(article_num)
+            else:
+                duplicate_numbers.add(article_num)
 
     if duplicate_numbers:
         errors.append(
-            f"Обнаружены повторяющиеся номера статей: {', '.join(duplicate_numbers)}"
+            f"Обнаружены повторяющиеся номера статей: {', '.join(sorted(duplicate_numbers))}"
         )
 
     if errors:
