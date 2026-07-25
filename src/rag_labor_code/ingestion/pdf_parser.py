@@ -30,7 +30,7 @@ def extract_text_from_pdf(pdf_path: Path) -> str:
      
     
 def normalize_text(text: str) -> str:
-    """Нормализуем извлеченный из PDF текст"""
+    """Нормализует текст, извлеченный из PDF"""
     if not text or not text.strip():
         raise ValueError("Текст не должен быть пустым!")
     
@@ -41,17 +41,17 @@ def normalize_text(text: str) -> str:
     
     text = text.replace("\u00ad", "")
     
-    normalized_lines = []
+    normalized_lines: list[str] = []
     
     for line in text.splitlines():
         normalized_line = re.sub(r"[ \t]+", " ", line).strip()
         normalized_lines.append(normalized_line)
         
-    normalized_text = '\n'.join(normalized_lines)
+    normalized_text = "\n".join(normalized_lines)
     normalized_text = re.sub(r"\n{3,}", "\n\n", normalized_text).strip()
     
     if not normalized_text:
-        ValueError("Результат пустой!")
+        raise ValueError("После нормализации текст оказался пустым!")
     
     return normalized_text
 
