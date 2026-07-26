@@ -20,7 +20,7 @@ def test_validate_articles_rejects_non_article_element() -> None:
 
 def test_validate_articles_rejects_invalid_number() -> None:
     article = Article(
-        article_num="",
+        article_num="91a",
         title="Понятие рабочего времени",
         content="Текст статьи.",
         source="ТК РФ",
@@ -30,7 +30,7 @@ def test_validate_articles_rejects_invalid_number() -> None:
 
     message = str(error.value)
 
-    assert "отсутствует номер!" in message
+    assert "не совпадает с паттерном!" in message
 
 
 def test_validate_articles_rejects_duplicate_numbers() -> None:

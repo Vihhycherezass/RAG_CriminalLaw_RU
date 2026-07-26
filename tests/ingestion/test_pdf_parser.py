@@ -90,7 +90,7 @@ def test_parse_articles_supports_compound_article_numbers() -> None:
 
 
 def test_extract_text_from_pdf_rejects_missing_file(tmp_path: Path) -> None:
-    file_path = tmp_path / "missing.txt"
+    file_path = tmp_path / "missing.pdf"
 
     with pytest.raises(FileNotFoundError, match="Файл не найден!"):
         extract_text_from_pdf(file_path)
