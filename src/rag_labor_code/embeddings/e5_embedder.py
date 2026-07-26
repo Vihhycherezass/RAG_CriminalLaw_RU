@@ -26,7 +26,7 @@ def prepare_query(query: str) -> str:
         return "query: " + query
 
 
-def prepare_nodes(
+def embed_nodes(
     nodes: list[BaseNode],
     embed_model: BaseEmbedding,
 ) -> list[BaseNode]:

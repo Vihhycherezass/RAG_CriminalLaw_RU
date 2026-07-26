@@ -9,6 +9,7 @@ requires-python = ">=3.10"
 dependencies = [
     "pdfplumber",
     "llama-index-core>=0.14,<0.15",
+    "llama-index-embeddings-huggingface>=0.7,<0.8",
 ]
 
 [project.optional-dependencies]

@@ -5,7 +5,7 @@ from llama_index.core.base.embeddings.base import BaseEmbedding
 from llama_index.core.schema import TextNode
 
 from rag_labor_code.embeddings.e5_embedder import (
-    prepare_nodes,
+    embed_nodes,
     prepare_passage,
     prepare_query,
 )
@@ -59,7 +59,7 @@ def test_embed_nodes_assigns_embedding_to_each_node() -> None:
     embed_model = MagicMock(spec=BaseEmbedding)
     embed_model.get_text_embedding_batch.return_value = expected_embeddings
 
-    prepared_nodes = prepare_nodes(
+    prepared_nodes = embed_nodes(
         nodes=nodes,
         embed_model=embed_model,
     )
@@ -80,7 +80,7 @@ def test_embed_nodes_passes_prefixed_texts_to_model() -> None:
         [0.0, 1.0],
     ]
 
-    prepare_nodes(
+    embed_nodes(
         nodes=nodes,
         embed_model=embed_model,
     )
@@ -110,7 +110,7 @@ def test_embed_nodes_preserves_metadata() -> None:
     embed_model = MagicMock(spec=BaseEmbedding)
     embed_model.get_text_embedding_batch.return_value = [[1.0, 0.0, 0.5]]
 
-    prepared_nodes = prepare_nodes(
+    prepared_nodes = embed_nodes(
         nodes=nodes,
         embed_model=embed_model,
     )
@@ -141,7 +141,7 @@ def test_embed_nodes_preserves_order() -> None:
         [0.0, 1.0],
     ]
 
-    prepared_nodes = prepare_nodes(
+    prepared_nodes = embed_nodes(
         nodes=nodes,
         embed_model=embed_model,
     )
@@ -159,7 +159,7 @@ def test_embed_nodes_rejects_empty_nodes() -> None:
         ValueError,
         match="Список с узлами пуст!",
     ):
-        prepare_nodes(
+        embed_nodes(
             nodes=[],
             embed_model=embed_model,
         )
@@ -172,7 +172,7 @@ def test_embed_nodes_rejects_non_node_element() -> None:
         TypeError,
         match="Список содержит элемент, не являющийся объектом BaseNode!",
     ):
-        prepare_nodes(
+        embed_nodes(
             nodes=["не узел"],  # type: ignore[list-item]
             embed_model=embed_model,
         )
@@ -189,7 +189,7 @@ def test_embed_nodes_rejects_empty_node_text() -> None:
         ValueError,
         match="Узел не содержит текста!",
     ):
-        prepare_nodes(
+        embed_nodes(
             nodes=nodes,
             embed_model=embed_model,
         )
@@ -212,7 +212,7 @@ def test_embed_nodes_rejects_embedding_count_mismatch() -> None:
         ValueError,
         match="Количество embeddings не совпадает с количеством узлов!",
     ):
-        prepare_nodes(
+        embed_nodes(
             nodes=nodes,
             embed_model=embed_model,
         )
