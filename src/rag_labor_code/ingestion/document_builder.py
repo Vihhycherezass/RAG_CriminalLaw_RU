@@ -4,7 +4,7 @@ from .models import Article
 from .validation import validate_articles
 
 
-def articles_to_document(articles: list[Article]) -> list[Document]:
+def articles_to_documents(articles: list[Article]) -> list[Document]:
     """Преобразует статьи в документы LlamaIndex."""
     validate_articles(articles)
 
