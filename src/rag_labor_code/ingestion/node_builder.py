@@ -19,9 +19,11 @@ def documents_to_nodes(
             )
 
         if not document.get_content().strip():
-            raise ValueError("Как минимум один из документов не имеет текс статьи!")
+            raise ValueError(
+                "Как минимум один из документов не содержит текста статьи!"
+            )
 
-    if chunk_size < 0:
+    if chunk_size <= 0:
         raise ValueError("chunk_size должен быть больше 0!")
 
     if chunk_overlap < 0:

@@ -204,3 +204,13 @@ def test_documents_to_nodes_keeps_article_metadata_separate() -> None:
 
         else:
             pytest.fail(f"Получен узел с неизвестным номером статьи: {article_num}")
+
+
+def test_documents_to_nodes_rejects_non_document_element() -> None:
+    with pytest.raises(TypeError):
+        documents_to_nodes(["не Document"])
+
+
+def test_documents_to_nodes_rejects_empty_document_text() -> None:
+    with pytest.raises(ValueError):
+        documents_to_nodes([Document(text="   ")])
