@@ -21,7 +21,13 @@ def test_save_articles_to_json_saves_articles(tmp_path: Path) -> None:
 
     save_articles_to_json(articles=articles, output_path=output_path)
 
-    data = json.loads(output_path.read_text(encoding="utf-8"))
+    assert output_path.is_file()
+
+    raw_json = output_path.read_text(encoding="utf-8")
+
+    assert "Заголовок статьи 91" in raw_json
+
+    data = json.loads(raw_json)
 
     assert output_path.exists()
     assert len(data) == 1

@@ -3,8 +3,8 @@ from dataclasses import asdict
 
 import json
 
-from rag_labor_code.ingestion.validation import validate_articles
-from rag_labor_code.ingestion.models import Article
+from .validation import validate_articles
+from .models import Article
 
 
 def save_articles_to_json(articles: list[Article], output_path: Path) -> None:
@@ -19,11 +19,7 @@ def save_articles_to_json(articles: list[Article], output_path: Path) -> None:
         exist_ok=True,
     )
 
-    data: list[dict] = []
-
-    for article in articles:
-        article = asdict(article)
-        data.append(article)
+    data = [asdict(article) for article in articles]
 
     with output_path.open("w", encoding="utf-8") as file:
         json.dump(data, file, ensure_ascii=False, indent=2)

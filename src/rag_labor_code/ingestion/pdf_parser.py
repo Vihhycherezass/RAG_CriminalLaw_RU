@@ -10,6 +10,11 @@ ARTICLE_HEADER_PATTERN = re.compile(
     flags=re.MULTILINE,
 )
 
+EDITORIAL_NOTE_PATTERN = re.compile(
+    r"\(в\s+ред\.",
+    flags=re.IGNORECASE,
+)
+
 
 def extract_text_from_pdf(pdf_path: Path) -> str:
     """Извлекает текст из всех страниц PDF."""
@@ -84,7 +89,7 @@ def parse_articles(
 
     for i, match in enumerate(matches):
         article_num = match.group("number").strip()
-        title = match.group("title").strip()
+        initial_title = match.group("title").strip()
 
         content_start = match.end()
 
@@ -93,7 +98,12 @@ def parse_articles(
         else:
             content_end = len(text)
 
-        content: str = text[content_start:content_end].strip()
+        article_block = text[content_start:content_end].strip()
+
+        title, content = split_title_and_content(
+            initial_title=initial_title,
+            article_block=article_block,
+        )
 
         article = Article(
             article_num=article_num,
@@ -105,3 +115,85 @@ def parse_articles(
         articles.append(article)
 
     return articles
+
+
+def get_first_letter(text: str) -> str:
+    """Возвращает первую букву строки."""
+    for char in text:
+        if char.isalpha():
+            return char
+
+    return ""
+
+
+def is_title_continuation(line: str) -> bool:
+    """Проверяет, является ли строка продолжением заголовка."""
+    first_letter = get_first_letter(line)
+
+    return bool(first_letter and first_letter.islower())
+
+
+def split_title_and_content(
+    initial_title: str,
+    article_block: str,
+) -> tuple[str, str]:
+    """Отделяет многострочный заголовок статьи от ее содержания."""
+    initial_title = initial_title.strip()
+    article_block = article_block.strip()
+
+    if not initial_title:
+        return "", article_block
+
+    initial_note_match = EDITORIAL_NOTE_PATTERN.search(initial_title)
+
+    if initial_note_match:
+        title = initial_title[: initial_note_match.start()].strip()
+        editorial_note = initial_title[initial_note_match.start() :].strip()
+
+        content_parts = [part for part in (editorial_note, article_block) if part]
+
+        content = "\n".join(content_parts)
+
+        return title, content
+
+    title_parts = [initial_title]
+
+    note_match = EDITORIAL_NOTE_PATTERN.search(article_block)
+
+    if note_match:
+        text_before_note = article_block[: note_match.start()].strip()
+
+        lines_before_note = [
+            line.strip() for line in text_before_note.splitlines() if line.strip()
+        ]
+
+        if all(is_title_continuation(line) for line in lines_before_note):
+            title_parts.extend(lines_before_note)
+
+            title = " ".join(title_parts).strip()
+            content = article_block[note_match.start() :].strip()
+
+            return title, content
+
+    lines = article_block.splitlines()
+    content_start = len(lines)
+
+    for index, raw_line in enumerate(lines):
+        line = raw_line.strip()
+
+        if not line:
+            content_start = index + 1
+            break
+
+        if is_title_continuation(line):
+            title_parts.append(line)
+            continue
+
+        content_start = index
+        break
+
+    title = " ".join(title_parts).strip()
+
+    content = "\n".join(line.strip() for line in lines[content_start:]).strip()
+
+    return title, content
