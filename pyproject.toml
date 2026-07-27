@@ -10,6 +10,8 @@ dependencies = [
     "pdfplumber",
     "llama-index-core>=0.14,<0.15",
     "llama-index-embeddings-huggingface>=0.7,<0.8",
+    "llama-index-retrievers-bm25>=0.7,<0.8",
+    "pystemmer>=2.2,<3",
 ]
 
 [project.optional-dependencies]

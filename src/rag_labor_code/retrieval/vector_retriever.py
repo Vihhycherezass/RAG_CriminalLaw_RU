@@ -25,8 +25,8 @@ def retrieve_vector_nodes(
 
     results = retriever.retrieve(prepared_query)
 
-    for res in results:
-        if not isinstance(res, NodeWithScore):
+    for result in results:
+        if not isinstance(result, NodeWithScore):
             raise TypeError(
                 "Результат поиска содержит элемент, не являющийся объектом NodeWithScore!"
             )
