@@ -1,8 +1,6 @@
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
-import warnings
-
 DEFAULT_E5_MODEL_NAME = "intfloat/multilingual-e5-large"
 
 
