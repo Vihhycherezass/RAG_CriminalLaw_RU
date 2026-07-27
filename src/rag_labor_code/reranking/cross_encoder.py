@@ -9,7 +9,7 @@ def create_cross_encoder(
     device: str | None = None,
     max_length: int = 512,
 ) -> CrossEncoder:
-    """Создает multilingial CrossENcoder для reranking."""
+    """Создаёт multilingual CrossEncoder для reranking."""
 
     if not model_name or not model_name.strip():
         raise ValueError("Название reranker-модели не должно быть пустым!")
@@ -36,7 +36,7 @@ def rerank_nodes(
     top_k: int = 5,
     batch_size: int = 8,
 ) -> list[NodeWithScore]:
-    """Повторное ранжирует найденные узлы с помощью CrossEncoder."""
+    """Повторно ранжирует найденные узлы с помощью CrossEncoder."""
 
     if not isinstance(reranker, CrossEncoder):
         raise TypeError("reranker должен быть объектом CrossEncoder!")
@@ -55,7 +55,7 @@ def rerank_nodes(
     if not candidates:
         return []
 
-    pairs: list[tuple] = []
+    pairs: list[tuple[str, str]] = []
 
     for candidate in candidates:
         if not isinstance(candidate, NodeWithScore):
@@ -78,14 +78,14 @@ def rerank_nodes(
     if len(scores) != len(candidates):
         raise ValueError("Количество scores не совпадает с количеством кандидатов!")
 
-    fused_results = [
+    reranker_results = [
         NodeWithScore(
             node=candidate.node,
             score=float(score),
         )
-        for candidate, score in zip(candidates, scores)
+        for candidate, score in zip(candidates, scores, strict=True)
     ]
 
-    fused_results.sort(key=lambda item: item.score, reverse=True)
+    reranker_results.sort(key=lambda item: item.score, reverse=True)
 
-    return fused_results[:top_k]
+    return reranker_results[:top_k]
