@@ -76,9 +76,9 @@ def build_context(
                     f"Поле metadata '{metadata_key}' " "не должно быть пустым!"
                 )
 
-        article_num = candidate.node.metadata["article_num"].strip()
-        title = candidate.node.metadata["title"].strip()
-        source = candidate.node.metadata["source"].strip()
+        article_num = metadata["article_num"].strip()
+        title = metadata["title"].strip()
+        source = metadata["source"].strip()
 
         if candidate.score is None:
             raise ValueError("У кандидата отсутствует score!")
