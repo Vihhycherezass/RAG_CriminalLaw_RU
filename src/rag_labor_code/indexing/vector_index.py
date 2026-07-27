@@ -23,7 +23,7 @@ def build_vector_index(
         if not isinstance(node, BaseNode):
             raise TypeError("Список содержит элемент, не являющийся объектом BaseNode!")
 
-        if not node.text or not node.text.strip():
+        if not node.get_content().strip():
             raise ValueError("Узел не содержит текста!")
 
         if not node.embedding:
@@ -80,7 +80,7 @@ def load_vector_index(
         raise ValueError("Путь к индексу не является директорией!")
 
     if not persist_dir.is_dir():
-        ValueError("Путь к индексу не является директорией!")
+        raise ValueError("Путь к индексу не является директорией!")
 
     storage_context = StorageContext.from_defaults(persist_dir=str(persist_dir))
 
