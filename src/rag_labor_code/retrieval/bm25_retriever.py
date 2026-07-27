@@ -1,4 +1,4 @@
-from llama_index.core.schema import NodeWithScore, BaseNode
+from llama_index.core.schema import BaseNode, NodeWithScore
 from llama_index.retrievers.bm25 import BM25Retriever
 import Stemmer
 
@@ -17,9 +17,7 @@ def build_bm25_retriever(
 
     for node in nodes:
         if not isinstance(node, BaseNode):
-            raise TypeError(
-                "Список содержит элемент, " "не являющийся объектом BaseNode!"
-            )
+            raise TypeError("Список содержит элемент, не являющийся объектом BaseNode!")
 
         if not node.get_content().strip():
             raise ValueError("Узел не содержит текста!")
