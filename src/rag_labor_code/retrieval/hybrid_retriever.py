@@ -26,7 +26,7 @@ def reciprocal_rank_fusion(
     scores_by_id: dict[str, float] = {}
 
     for results in result_lists:
-        seen_nodes_id: set[str] = set()
+        seen_nodes_ids: set[str] = set()
         unique_rank = 0
 
         for result in results:
@@ -37,10 +37,10 @@ def reciprocal_rank_fusion(
 
             node_id = result.node.node_id
 
-            if node_id in seen_nodes_id:
+            if node_id in seen_nodes_ids:
                 continue
 
-            seen_nodes_id.add(node_id)
+            seen_nodes_ids.add(node_id)
 
             unique_rank += 1
 
