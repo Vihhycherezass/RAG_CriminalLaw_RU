@@ -38,9 +38,9 @@ def _validate_case(case: RetrievalEvaluationCase) -> None:
     if not isinstance(case.retrieved_article_nums, tuple):
         raise TypeError("retrieved_article_nums должен быть tuple!")
 
-    all_articles_nums = case.relevant_article_nums + case.retrieved_article_nums
+    all_article_nums = case.relevant_article_nums + case.retrieved_article_nums
 
-    for article_num in all_articles_nums:
+    for article_num in all_article_nums:
         if not isinstance(article_num, str) or not article_num.strip():
             raise ValueError("Номера статей должны быть непустыми строками!")
 
@@ -75,11 +75,11 @@ def evaluate_retrieval(
         relevant_set = set(case.relevant_article_nums)
         retrieved_set = set(top_k)
 
-        matches_articles = relevant_set & retrieved_set
+        matched_articles = relevant_set & retrieved_set
 
-        hit = 1.0 if matches_articles else 0.0
+        hit = 1.0 if matched_articles else 0.0
 
-        recall = len(matches_articles) / len(relevant_set)
+        recall = len(matched_articles) / len(relevant_set)
 
         reciprocal_rank = 0.0
 
