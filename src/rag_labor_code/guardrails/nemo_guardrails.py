@@ -72,7 +72,7 @@ class NemoGuardrailsAdapter:
 
             return NemoGuardrailDecision(
                 allowed=True,
-                content=result.content,
+                content=content,
                 modified=True,
             )
 

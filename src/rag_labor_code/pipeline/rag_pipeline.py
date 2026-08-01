@@ -5,6 +5,7 @@ from llama_cpp import Llama
 
 from dataclasses import dataclass
 
+from rag_labor_code.guardrails.nemo_guardrails import NemoGuardrailsAdapter
 from rag_labor_code.generation.context_builder import ContextSource
 from rag_labor_code.generation.context_builder import build_context
 from rag_labor_code.guardrails.rules import check_query_guardrails
@@ -16,6 +17,8 @@ from rag_labor_code.generation.saiga_generator import generate_answer
 NO_CONTEXT_ANSWER = (
     "Не удалось найти релевантные положения " "Трудового кодекса для ответа."
 )
+
+NEMO_GUARDRAILS_TYPE = NemoGuardrailsAdapter
 
 
 @dataclass(frozen=True)
@@ -83,6 +86,7 @@ class RAGPipeline:
         reranker: CrossEncoder,
         llm: Llama,
         config: RAGPipelineConfig | None = None,
+        nemo_guardrails: NemoGuardrailsAdapter | None = None,
     ) -> None:
         self._index = index
         self._bm25_retriever = bm25_retriever
@@ -96,6 +100,15 @@ class RAGPipeline:
                 raise TypeError("config должен быть объектом RAGPipelineConfig!")
 
         self._config = config
+
+        if nemo_guardrails is not None and not isinstance(
+            nemo_guardrails, NEMO_GUARDRAILS_TYPE
+        ):
+            raise TypeError(
+                "nemo_guardrails должен быть объектом NemoGuardrailsAdapter!"
+            )
+
+        self._nemo_guardrails = nemo_guardrails
 
     def answer(
         self,
@@ -115,17 +128,32 @@ class RAGPipeline:
                 reason=query_decision.reason,
             )
 
+        effective_question = question
+
+        if self._nemo_guardrails is not None:
+            nemo_input_decision = self._nemo_guardrails.check_input(question)
+
+            if not nemo_input_decision.allowed:
+                return RAGPipelineResult(
+                    answer="",
+                    sources=(),
+                    blocked=True,
+                    reason=nemo_input_decision.reason,
+                )
+
+            effective_question = nemo_input_decision.content
+
         hybrid_candidates = retrieve_hybrid_nodes(
             index=self._index,
             bm25_retriever=self._bm25_retriever,
-            query=question,
+            query=effective_question,
             vector_top_k=self._config.retrieval_top_k,
             final_top_k=self._config.retrieval_top_k,
             rrf_k=self._config.rrf_k,
         )
 
         reranked_candidates = rerank_nodes(
-            query=question,
+            query=effective_question,
             candidates=hybrid_candidates,
             reranker=self._reranker,
             top_k=self._config.rerank_top_k,
@@ -147,7 +175,7 @@ class RAGPipeline:
             )
 
         answer = generate_answer(
-            question=question,
+            question=effective_question,
             context=context_result.context,
             llm=self._llm,
             max_tokens=self._config.max_tokens,
@@ -169,8 +197,41 @@ class RAGPipeline:
                 reason=answer_decision.reason,
             )
 
+        final_answer = answer
+
+        if self._nemo_guardrails is not None:
+            nemo_output_decision = self._nemo_guardrails.check_output(
+                question=effective_question,
+                answer=answer,
+            )
+
+            if not nemo_output_decision.allowed:
+                return RAGPipelineResult(
+                    answer="",
+                    sources=tuple(context_result.sources),
+                    blocked=True,
+                    reason=nemo_output_decision.reason,
+                )
+
+            final_answer = nemo_output_decision.content
+
+            if nemo_output_decision.modified:
+                modified_answer_decision = check_answer_guardrails(
+                    answer=final_answer,
+                    source_count=len(context_result.sources),
+                    require_sources=self._config.require_sources,
+                )
+
+                if not modified_answer_decision.allowed:
+                    return RAGPipelineResult(
+                        answer="",
+                        sources=tuple(context_result.sources),
+                        blocked=True,
+                        reason=modified_answer_decision.reason,
+                    )
+
         return RAGPipelineResult(
-            answer=answer,
+            answer=final_answer,
             sources=tuple(context_result.sources),
             blocked=False,
             reason=None,
