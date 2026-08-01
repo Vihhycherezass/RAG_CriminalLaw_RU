@@ -77,7 +77,7 @@ class LlamaCppNeMoModel:
         return "llama_cpp"
 
     @property
-    def provider_url(self) -> None:
+    def provider_url(self) -> str | None:
         return None
 
     async def generate_async(
