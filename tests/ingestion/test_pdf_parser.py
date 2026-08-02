@@ -9,6 +9,36 @@ from rag_labor_code.ingestion.pdf_parser import (
 )
 
 
+from rag_labor_code.ingestion.validation import validate_articles
+
+
+def test_parse_articles_supports_hyphenated_article_numbers() -> None:
+    text = """
+Статья 341. Обычная статья
+Содержание обычной статьи.
+
+Статья 341.1-1. Организации, имеющие право на осуществление деятельности
+Содержание статьи 341.1-1.
+
+Статья 341.1-2. Договор о предоставлении труда работников
+Содержание статьи 341.1-2.
+
+Статья 348.11-1. Дополнительные основания прекращения трудового договора
+Содержание статьи 348.11-1.
+""".strip()
+
+    articles = parse_articles(text)
+
+    assert [article.article_num for article in articles] == [
+        "341",
+        "341.1-1",
+        "341.1-2",
+        "348.11-1",
+    ]
+
+    validate_articles(articles)
+
+
 def test_normalize_text_normalizes_whitespace() -> None:
     raw_text = (
         "  Статья 91.\xa0Рабочее   время\r\n" "\r\n" "\r\n" "\tТекст статьи.\u00ad"

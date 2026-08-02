@@ -6,7 +6,9 @@ import pdfplumber
 from .models import Article
 
 ARTICLE_HEADER_PATTERN = re.compile(
-    r"^Статья[ \t]+" r"(?P<number>\d+(?:\.\d+)*)\." r"[ \t]*(?P<title>[^\n]*)$",
+    r"^Статья[ \t]+"
+    r"(?P<number>\d+(?:\.\d+)*(?:-\d+)?)\."
+    r"[ \t]*(?P<title>[^\n]*)$",
     flags=re.MULTILINE,
 )
 

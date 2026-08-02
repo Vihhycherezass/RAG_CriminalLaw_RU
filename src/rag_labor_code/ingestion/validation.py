@@ -2,7 +2,7 @@ import re
 
 from .models import Article
 
-ARTICLE_NUMBER_PATTERN = re.compile(r"^\d+(?:\.\d+)*$")
+ARTICLE_NUMBER_PATTERN = re.compile(r"^\d+(?:\.\d+)*(?:-\d+)?$")
 
 
 def validate_articles(articles: list[Article]) -> None:
