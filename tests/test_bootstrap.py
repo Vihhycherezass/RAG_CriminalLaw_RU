@@ -391,6 +391,7 @@ def test_build_rag_pipeline_assembles_dependencies(
         n_ctx=4096,
         n_gpu_layers=0,
         n_threads=4,
+        chat_format="chatml",
         pipeline_config=pipeline_config,
     )
 
@@ -479,6 +480,7 @@ def test_build_rag_pipeline_assembles_dependencies(
         n_ctx=4096,
         n_gpu_layers=0,
         n_threads=4,
+        chat_format="chatml",
     )
 
     nemo_factory.assert_called_once_with(

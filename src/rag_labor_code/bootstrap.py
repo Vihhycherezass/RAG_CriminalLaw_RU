@@ -165,6 +165,7 @@ def build_rag_pipeline(
         n_ctx=config.n_ctx,
         n_gpu_layers=config.n_gpu_layers,
         n_threads=config.n_threads,
+        chat_format=config.chat_format,
     )
 
     nemo = create_nemo_guardrails_adapter(config_path=config.nemo_config_dir, llm=llm)

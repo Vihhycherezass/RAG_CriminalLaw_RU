@@ -24,6 +24,8 @@ class AppConfig:
     n_gpu_layers: int = -1
     n_threads: int | None = None
 
+    chat_format: str | None = "chatml"
+
     rebuild_index: bool = False
 
     pipeline_config: RAGPipelineConfig = field(default_factory=RAGPipelineConfig)
@@ -88,6 +90,13 @@ class AppConfig:
 
             if self.n_threads <= 0:
                 raise ValueError("n_threads должен быть больше 0!")
+
+        if self.chat_format is not None:
+            if not isinstance(self.chat_format, str):
+                raise TypeError("chat_format должен быть str или None!")
+
+            if not self.chat_format.strip():
+                raise ValueError("chat_format не должен быть пустым!")
 
         if type(self.rebuild_index) is not bool:
             raise TypeError("rebuild_index должен быть bool!")
