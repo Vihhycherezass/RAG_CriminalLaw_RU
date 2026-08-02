@@ -75,7 +75,7 @@ def build_new_vector_index(
         raise TypeError("config должен быть объектом AppConfig!")
 
     if not isinstance(embed_model, BaseEmbedding):
-        raise TypeError("embedded_model должен быть объектом BaseEmbedding!")
+        raise TypeError("embed_model должен быть объектом BaseEmbedding!")
 
     raw_text = extract_text_from_pdf(config.pdf_path)
 

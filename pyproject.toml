@@ -28,3 +28,6 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[project.scripts]
+rag-labor-code = "rag_labor_code.main:main"
