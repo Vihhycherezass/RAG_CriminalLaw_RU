@@ -110,6 +110,37 @@ class NemoGuardrailsAdapter:
 
         return decision
 
+    async def check_input_async(
+        self,
+        query: str,
+    ) -> NemoGuardrailDecision:
+
+        if not isinstance(query, str):
+            raise TypeError("query должен быть строкой!")
+
+        query = query.strip()
+
+        if not query:
+            raise ValueError("query не должен быть пустым!")
+
+        result = await self._rails.check_async(
+            messages=[
+                {
+                    "role": "user",
+                    "content": query,
+                },
+            ],
+            rail_types=[RailType.INPUT],
+        )
+
+        decision = self._build_decision(
+            result=result,
+            original_content=query,
+            blocked_reason=NEMO_INPUT_BLOCK_REASON,
+        )
+
+        return decision
+
     def check_output(
         self,
         question: str,
@@ -133,6 +164,50 @@ class NemoGuardrailsAdapter:
             raise ValueError("answer не должен быть пустым!")
 
         result = self._rails.check(
+            messages=[
+                {
+                    "role": "user",
+                    "content": question,
+                },
+                {
+                    "role": "assistant",
+                    "content": answer,
+                },
+            ],
+            rail_types=[RailType.OUTPUT],
+        )
+
+        decision = self._build_decision(
+            result=result,
+            original_content=answer,
+            blocked_reason=NEMO_OUTPUT_BLOCK_REASON,
+        )
+
+        return decision
+
+    async def check_output_async(
+        self,
+        question: str,
+        answer: str,
+    ) -> NemoGuardrailDecision:
+
+        if not isinstance(question, str):
+            raise TypeError("question должен быть строкой!")
+
+        question = question.strip()
+
+        if not question:
+            raise ValueError("question не должен быть пустым!")
+
+        if not isinstance(answer, str):
+            raise TypeError("answer должен быть строкой!")
+
+        answer = answer.strip()
+
+        if not answer:
+            raise ValueError("answer не должен быть пустым!")
+
+        result = await self._rails.check_async(
             messages=[
                 {
                     "role": "user",

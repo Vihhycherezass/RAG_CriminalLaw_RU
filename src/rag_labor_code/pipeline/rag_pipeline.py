@@ -236,3 +236,132 @@ class RAGPipeline:
             blocked=False,
             reason=None,
         )
+
+    async def answer_async(
+        self,
+        question: str,
+    ) -> RAGPipelineResult:
+
+        query_decision = check_query_guardrails(
+            query=question,
+            max_chars=self._config.max_query_chars,
+        )
+
+        if not query_decision.allowed:
+            return RAGPipelineResult(
+                answer="",
+                sources=(),
+                blocked=True,
+                reason=query_decision.reason,
+            )
+
+        effective_question = question
+
+        if self._nemo_guardrails is not None:
+            nemo_input_decision = await self._nemo_guardrails.check_input_async(
+                question
+            )
+
+            if not nemo_input_decision.allowed:
+                return RAGPipelineResult(
+                    answer="",
+                    sources=(),
+                    blocked=True,
+                    reason=nemo_input_decision.reason,
+                )
+
+            effective_question = nemo_input_decision.content
+
+        hybrid_candidates = retrieve_hybrid_nodes(
+            index=self._index,
+            bm25_retriever=self._bm25_retriever,
+            query=effective_question,
+            vector_top_k=self._config.retrieval_top_k,
+            final_top_k=self._config.retrieval_top_k,
+            rrf_k=self._config.rrf_k,
+        )
+
+        reranked_candidates = rerank_nodes(
+            query=effective_question,
+            candidates=hybrid_candidates,
+            reranker=self._reranker,
+            top_k=self._config.rerank_top_k,
+            batch_size=self._config.reranker_batch_size,
+        )
+
+        context_result = build_context(
+            candidates=reranked_candidates,
+            max_sources=self._config.max_sources,
+            max_chars=self._config.max_context_chars,
+        )
+
+        if not context_result.context.strip():
+            return RAGPipelineResult(
+                answer=NO_CONTEXT_ANSWER,
+                sources=(),
+                blocked=False,
+                reason=None,
+            )
+
+        answer = generate_answer(
+            question=effective_question,
+            context=context_result.context,
+            llm=self._llm,
+            max_tokens=self._config.max_tokens,
+            temperature=self._config.temperature,
+            top_p=self._config.top_p,
+        )
+
+        answer_decision = check_answer_guardrails(
+            answer=answer,
+            source_count=len(context_result.sources),
+            require_sources=self._config.require_sources,
+        )
+
+        if not answer_decision.allowed:
+            return RAGPipelineResult(
+                answer="",
+                sources=tuple(context_result.sources),
+                blocked=True,
+                reason=answer_decision.reason,
+            )
+
+        final_answer = answer
+
+        if self._nemo_guardrails is not None:
+            nemo_output_decision = await self._nemo_guardrails.check_output_async(
+                question=effective_question,
+                answer=answer,
+            )
+
+            if not nemo_output_decision.allowed:
+                return RAGPipelineResult(
+                    answer="",
+                    sources=tuple(context_result.sources),
+                    blocked=True,
+                    reason=nemo_output_decision.reason,
+                )
+
+            final_answer = nemo_output_decision.content
+
+            if nemo_output_decision.modified:
+                modified_answer_decision = check_answer_guardrails(
+                    answer=final_answer,
+                    source_count=len(context_result.sources),
+                    require_sources=self._config.require_sources,
+                )
+
+                if not modified_answer_decision.allowed:
+                    return RAGPipelineResult(
+                        answer="",
+                        sources=tuple(context_result.sources),
+                        blocked=True,
+                        reason=modified_answer_decision.reason,
+                    )
+
+        return RAGPipelineResult(
+            answer=final_answer,
+            sources=tuple(context_result.sources),
+            blocked=False,
+            reason=None,
+        )
