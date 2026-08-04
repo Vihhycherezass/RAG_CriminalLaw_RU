@@ -38,18 +38,18 @@
 
 ## Возможности
 
-| Блок | Реализация |
-| --- | --- |
-| Подготовка данных | Извлечение и нормализация текста из PDF, разбиение ТК РФ по статьям |
-| Индексация | Documents/Nodes, multilingual E5 embeddings, сохраняемый векторный индекс |
-| Retrieval | Dense retrieval + BM25, объединение результатов через Reciprocal Rank Fusion |
-| Reranking | CrossEncoder повторно оценивает кандидатов после гибридного поиска |
-| Генерация | Локальная Saiga/Mistral 7B в формате GGUF через `llama-cpp-python` |
-| Источники | Нормализация ссылок вида `[Источник N]` и показ использованных статей |
-| Безопасность | Deterministic guardrails и NeMo Guardrails для входных и выходных сообщений |
-| Интерфейс | Gradio UI со статусом, ответом и отдельным блоком источников |
-| Запуск | CLI entrypoint, CPU/auto и CUDA-конфигурации |
-| Проверка | Unit-, integration- и end-to-end тесты синхронного и асинхронного pipeline |
+| Блок              | Реализация                                                                   |
+| ----------------- | ---------------------------------------------------------------------------- |
+| Подготовка данных | Извлечение и нормализация текста из PDF, разбиение ТК РФ по статьям          |
+| Индексация        | Documents/Nodes, multilingual E5 embeddings, сохраняемый векторный индекс    |
+| Retrieval         | Dense retrieval + BM25, объединение результатов через Reciprocal Rank Fusion |
+| Reranking         | CrossEncoder повторно оценивает кандидатов после гибридного поиска           |
+| Генерация         | Локальная Saiga/Mistral 7B в формате GGUF через `llama-cpp-python`           |
+| Источники         | Нормализация ссылок вида `[Источник N]` и показ использованных статей        |
+| Безопасность      | Deterministic guardrails и NeMo Guardrails для входных и выходных сообщений  |
+| Интерфейс         | Gradio UI со статусом, ответом и отдельным блоком источников                 |
+| Запуск            | CLI entrypoint, CPU/auto и CUDA-конфигурации                                 |
+| Проверка          | Unit-, integration- и end-to-end тесты синхронного и асинхронного pipeline   |
 
 ## Архитектура
 
@@ -84,11 +84,11 @@ flowchart TD
 
 ## Модели
 
-| Назначение | Модель | Роль в pipeline |
-| --- | --- | --- |
-| Embeddings | [`intfloat/multilingual-e5-large`](https://huggingface.co/intfloat/multilingual-e5-large) | Dense retrieval |
-| Reranker | [`cross-encoder/mmarco-mMiniLMv2-L12-H384-v1`](https://huggingface.co/cross-encoder/mmarco-mMiniLMv2-L12-H384-v1) | Повторное ранжирование hybrid-кандидатов |
-| LLM | [`IlyaGusev/saiga_mistral_7b_gguf`](https://huggingface.co/IlyaGusev/saiga_mistral_7b_gguf), `model-q4_K.gguf` | Генерация ответа и локальные NeMo self-checks |
+| Назначение | Модель                                                                                                            | Роль в pipeline                               |
+| ---------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| Embeddings | [`intfloat/multilingual-e5-large`](https://huggingface.co/intfloat/multilingual-e5-large)                         | Dense retrieval                               |
+| Reranker   | [`cross-encoder/mmarco-mMiniLMv2-L12-H384-v1`](https://huggingface.co/cross-encoder/mmarco-mMiniLMv2-L12-H384-v1) | Повторное ранжирование hybrid-кандидатов      |
+| LLM        | [`IlyaGusev/saiga_mistral_7b_gguf`](https://huggingface.co/IlyaGusev/saiga_mistral_7b_gguf), `model-q4_K.gguf`    | Генерация ответа и локальные NeMo self-checks |
 
 GGUF-файл LLM не хранится в репозитории и загружается отдельно. Embedding-модель и reranker автоматически скачиваются из Hugging Face при первом запуске.
 
@@ -224,11 +224,11 @@ Input- и output-rails используются для:
 
 Полный пользовательский путь `Gradio → guardrails → retrieval → reranking → Saiga → citations → presenter` проверен end-to-end.
 
-| Сценарий | Ожидаемый и полученный результат |
-| --- | --- |
+| Сценарий                                      | Ожидаемый и полученный результат                       |
+| --------------------------------------------- | ------------------------------------------------------ |
 | Нормальная продолжительность рабочего времени | Ответ сформирован, основной источник — статья 91 ТК РФ |
-| Увольнение по собственному желанию | Ответ сформирован, статья 80 выведена источником №1 |
-| Prompt injection с запросом системного prompt | Запрос заблокирован с корректной причиной |
+| Увольнение по собственному желанию            | Ответ сформирован, статья 80 выведена источником №1    |
+| Prompt injection с запросом системного prompt | Запрос заблокирован с корректной причиной              |
 
 ### Пример ответа
 
@@ -258,15 +258,15 @@ Input- и output-rails используются для:
 
 Финальный E2E-запуск выполнен на NVIDIA Tesla T4:
 
-| Компонент | Конфигурация |
-| --- | --- |
-| Embedding model | CUDA |
-| CrossEncoder | CUDA |
-| Saiga | Полный GPU offload |
-| `n_gpu_layers` | `-1` |
-| `n_ctx` | `4096` |
-| Использовано VRAM после сборки pipeline | около 7.6 GiB |
-| Свободно VRAM | около 7.1 GiB |
+| Компонент                               | Конфигурация       |
+| --------------------------------------- | ------------------ |
+| Embedding model                         | CUDA               |
+| CrossEncoder                            | CUDA               |
+| Saiga                                   | Полный GPU offload |
+| `n_gpu_layers`                          | `-1`               |
+| `n_ctx`                                 | `4096`             |
+| Использовано VRAM после сборки pipeline | около 7.6 GiB      |
+| Свободно VRAM                           | около 7.1 GiB      |
 
 Короткий E2E-запрос после полного GPU offload выполнялся примерно за 4 секунды; до оптимизации тот же класс запросов занимал около 13.5 секунды. Фактическая задержка зависит от длины контекста, ответа и конфигурации окружения.
 
@@ -289,10 +289,10 @@ notebooks/run_colab.ipynb
 - E2E-тесты и GPU benchmark;
 - запуск Gradio.
 
-Исходный исследовательский prototype сохранён отдельно:
+Исходный исследовательский prototype / proof of concept сохранён отдельно:
 
 ```text
-notebooks/labor_code_rag_prototype.ipynb
+notebooks/Neuro_Lawyer_RAG_system(Labor_Code_of_the_Russian_Federation).ipynb
 ```
 
 ## Тесты

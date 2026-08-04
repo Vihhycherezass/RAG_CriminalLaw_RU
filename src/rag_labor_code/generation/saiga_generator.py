@@ -29,7 +29,7 @@ DEFAULT_SYSTEM_PROMPT = (
 
 def create_saiga_llm(
     model_path: Path,
-    n_ctx: int = 8192,
+    n_ctx: int = 4096,
     n_gpu_layers: int = -1,
     n_threads: int | None = None,
     chat_format: str | None = None,

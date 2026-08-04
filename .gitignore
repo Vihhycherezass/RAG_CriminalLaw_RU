@@ -4,3 +4,10 @@ __pycache__/
 *.pyc
 .env
 *.egg-info/
+models/
+data/processed/*
+!data/processed/.gitkeep
+.ipynb_checkpoints/
+.DS_Store
+.idea/
+.vscode/

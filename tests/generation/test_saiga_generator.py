@@ -34,7 +34,7 @@ def test_create_saiga_llm_uses_default_parameters(
 
     mock_llama_class.assert_called_once_with(
         model_path=str(model_path),
-        n_ctx=8192,
+        n_ctx=4096,
         n_gpu_layers=-1,
         n_threads=None,
         chat_format=None,
