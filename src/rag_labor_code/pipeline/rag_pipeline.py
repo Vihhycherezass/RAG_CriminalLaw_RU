@@ -5,6 +5,10 @@ from llama_cpp import Llama
 
 from dataclasses import dataclass
 
+from rag_labor_code.generation.saiga_generator import generate_answer
+from rag_labor_code.generation.citation_postprocessor import (
+    normalize_source_citations,
+)
 from rag_labor_code.guardrails.nemo_guardrails import NemoGuardrailsAdapter
 from rag_labor_code.generation.context_builder import ContextSource
 from rag_labor_code.generation.context_builder import build_context
@@ -183,6 +187,11 @@ class RAGPipeline:
             top_p=self._config.top_p,
         )
 
+        answer = normalize_source_citations(
+            answer=answer,
+            sources=context_result.sources,
+        )
+
         answer_decision = check_answer_guardrails(
             answer=answer,
             source_count=len(context_result.sources),
@@ -216,6 +225,11 @@ class RAGPipeline:
             final_answer = nemo_output_decision.content
 
             if nemo_output_decision.modified:
+                final_answer = normalize_source_citations(
+                    answer=final_answer,
+                    sources=context_result.sources,
+                )
+
                 modified_answer_decision = check_answer_guardrails(
                     answer=final_answer,
                     source_count=len(context_result.sources),
@@ -312,6 +326,11 @@ class RAGPipeline:
             top_p=self._config.top_p,
         )
 
+        answer = normalize_source_citations(
+            answer=answer,
+            sources=context_result.sources,
+        )
+
         answer_decision = check_answer_guardrails(
             answer=answer,
             source_count=len(context_result.sources),
@@ -345,6 +364,11 @@ class RAGPipeline:
             final_answer = nemo_output_decision.content
 
             if nemo_output_decision.modified:
+                final_answer = normalize_source_citations(
+                    answer=final_answer,
+                    sources=context_result.sources,
+                )
+
                 modified_answer_decision = check_answer_guardrails(
                     answer=final_answer,
                     source_count=len(context_result.sources),
