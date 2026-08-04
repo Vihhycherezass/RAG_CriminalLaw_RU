@@ -338,7 +338,7 @@ git diff --check
 │   ├── raw/
 │   └── processed/
 ├── notebooks/
-│   ├── labor_code_rag_prototype.ipynb
+│   ├── Neuro_Lawyer_RAG_system(Labor_Code_of_the_Russian_Federation).ipynb
 │   └── run_colab.ipynb
 ├── src/
 │   └── rag_labor_code/
