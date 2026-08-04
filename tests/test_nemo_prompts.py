@@ -93,8 +93,8 @@ def test_self_check_output_uses_chat_messages() -> None:
 
     assert "{{ user_input }}" not in user_content
 
-    assert "[источник n]" in system_content.casefold()
+    assert "[источник 1]" in system_content.casefold()
 
-    assert "при сомнении разрешай ответ" in system_content.casefold()
+    assert "при сомнении отвечай no" in system_content.casefold()
 
     assert prompt["max_tokens"] == 4
