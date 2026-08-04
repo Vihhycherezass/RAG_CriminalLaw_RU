@@ -51,3 +51,11 @@ def test_app_config_rejects_empty_chat_format() -> None:
             saiga_model_path=Path("saiga.gguf"),
             chat_format="   ",
         )
+
+
+def test_app_config_uses_safe_n_ctx_by_default() -> None:
+    config = AppConfig(
+        saiga_model_path=Path("saiga.gguf"),
+    )
+
+    assert config.n_ctx == 4096

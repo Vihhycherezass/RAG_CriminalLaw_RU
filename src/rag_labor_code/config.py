@@ -20,7 +20,7 @@ class AppConfig:
     embedding_device: str | None = None
     reranker_device: str | None = None
 
-    n_ctx: int = 8192
+    n_ctx: int = 4096
     n_gpu_layers: int = -1
     n_threads: int | None = None
 

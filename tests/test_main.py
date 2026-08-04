@@ -36,7 +36,7 @@ def test_parse_arguments_uses_defaults() -> None:
     assert args.embedding_device is None
     assert args.reranker_device is None
 
-    assert args.n_ctx == 8192
+    assert args.n_ctx == 4096
     assert args.n_gpu_layers == -1
     assert args.n_threads is None
 

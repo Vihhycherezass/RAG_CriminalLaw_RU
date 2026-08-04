@@ -62,7 +62,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--n-ctx",
         type=int,
-        default=8192,
+        default=4096,
         help="Размер контекстного окна Saiga.",
     )
 
