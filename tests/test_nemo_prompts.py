@@ -71,6 +71,14 @@ def test_self_check_input_uses_chat_messages() -> None:
 
     assert prompt["max_tokens"] == 4
 
+    assert (
+        "как работник может расторгнуть трудовой договор" in system_content.casefold()
+    )
+
+    assert "как уволиться по собственному желанию" in system_content.casefold()
+
+    assert "при сомнении разрешай запрос и отвечай no" in system_content.casefold()
+
 
 def test_self_check_output_uses_chat_messages() -> None:
     prompt = get_prompt("self_check_output")
