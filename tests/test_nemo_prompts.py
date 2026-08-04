@@ -18,6 +18,7 @@ def load_prompts() -> list[dict]:
         data = yaml.safe_load(file)
 
     assert isinstance(data, dict)
+
     assert isinstance(
         data.get("prompts"),
         list,
@@ -84,10 +85,16 @@ def test_self_check_output_uses_chat_messages() -> None:
 
     assert messages[1]["type"] == "user"
 
+    system_content = messages[0]["content"]
+
     user_content = messages[1]["content"]
 
-    assert "{{ user_input }}" in user_content
+    assert user_content.strip() == "{{ bot_response }}"
 
-    assert "{{ bot_response }}" in user_content
+    assert "{{ user_input }}" not in user_content
+
+    assert "[источник n]" in system_content.casefold()
+
+    assert "при сомнении разрешай ответ" in system_content.casefold()
 
     assert prompt["max_tokens"] == 4
