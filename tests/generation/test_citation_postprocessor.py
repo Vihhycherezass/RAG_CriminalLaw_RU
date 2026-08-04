@@ -1,3 +1,5 @@
+import pytest
+
 from rag_labor_code.generation.citation_postprocessor import (
     normalize_source_citations,
 )
@@ -9,12 +11,13 @@ from rag_labor_code.generation.context_builder import (
 
 def make_source(
     article_num: str,
+    score: float = 1.0,
 ) -> ContextSource:
     return ContextSource(
         article_num=article_num,
         title=f"Статья {article_num}",
         source="ТК РФ",
-        score=1.0,
+        score=score,
     )
 
 
@@ -90,7 +93,7 @@ def test_corrects_wrong_existing_reference() -> None:
     assert "статье 91 [Источник 2]" not in result
 
 
-def test_does_not_add_reference_for_unknown_article() -> None:
+def test_does_not_replace_unknown_article() -> None:
     sources = [
         make_source("91"),
     ]
@@ -102,7 +105,50 @@ def test_does_not_add_reference_for_unknown_article() -> None:
         sources=sources,
     )
 
-    assert result == answer
+    assert "статья 999" in result
+
+    assert result.endswith("[Источник 1]")
+
+
+def test_adds_fallback_when_model_has_no_citation() -> None:
+    sources = [
+        make_source(
+            "91",
+            score=5.8,
+        ),
+        make_source(
+            "92",
+            score=3.1,
+        ),
+    ]
+
+    answer = (
+        "Нормальная продолжительность "
+        "рабочего времени составляет "
+        "40 часов в неделю."
+    )
+
+    result = normalize_source_citations(
+        answer=answer,
+        sources=sources,
+    )
+
+    assert result == (answer + "\n\n[Источник 1]")
+
+
+def test_does_not_add_fallback_twice() -> None:
+    sources = [
+        make_source("91"),
+    ]
+
+    answer = "Продолжительность составляет " "40 часов [Источник 1]."
+
+    result = normalize_source_citations(
+        answer=answer,
+        sources=sources,
+    )
+
+    assert result.count("[Источник 1]") == 1
 
 
 def test_supports_article_abbreviation() -> None:
@@ -147,28 +193,35 @@ def test_returns_answer_unchanged_without_sources() -> None:
 
 
 def test_rejects_empty_answer() -> None:
-    try:
+    with pytest.raises(
+        ValueError,
+        match=("answer не должен быть пустым"),
+    ):
         normalize_source_citations(
             answer="   ",
             sources=[],
         )
 
-    except ValueError as error:
-        assert "answer не должен быть пустым" in str(error)
-
-    else:
-        raise AssertionError("Ожидался ValueError.")
-
 
 def test_rejects_non_string_answer() -> None:
-    try:
+    with pytest.raises(
+        TypeError,
+        match=("answer должен быть строкой"),
+    ):
         normalize_source_citations(
             answer=123,  # type: ignore[arg-type]
             sources=[],
         )
 
-    except TypeError as error:
-        assert "answer должен быть строкой" in str(error)
 
-    else:
-        raise AssertionError("Ожидался TypeError.")
+def test_rejects_invalid_source_type() -> None:
+    with pytest.raises(
+        TypeError,
+        match=("Каждый source должен быть " "объектом ContextSource"),
+    ):
+        normalize_source_citations(
+            answer="Ответ.",
+            sources=[
+                object(),  # type: ignore[list-item]
+            ],
+        )

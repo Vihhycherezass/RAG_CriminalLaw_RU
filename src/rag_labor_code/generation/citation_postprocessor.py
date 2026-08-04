@@ -28,18 +28,30 @@ ARTICLE_REFERENCE_PATTERN = re.compile(
 )
 
 
+SOURCE_REFERENCE_PATTERN = re.compile(
+    r"\[Источник\s+\d+\]",
+    flags=re.IGNORECASE,
+)
+
+
 def normalize_source_citations(
     answer: str,
     sources: list[ContextSource] | tuple[ContextSource, ...],
 ) -> str:
     """
-    Преобразует естественные ссылки на статьи
-    в машинные ссылки [Источник N].
+    Нормализует ссылки на источники в ответе LLM.
 
-    Пример:
-    "согласно статье 91 ТК РФ"
-    ->
-    "согласно статье 91 [Источник 1] ТК РФ"
+    Если модель пишет естественную ссылку:
+
+        "согласно статье 91 ТК РФ"
+
+    она преобразуется в:
+
+        "согласно статье 91 [Источник 1] ТК РФ"
+
+    Если модель вообще не указала источник,
+    добавляется ссылка на первый источник,
+    имеющий наивысший reranking score.
     """
 
     if not isinstance(answer, str):
@@ -68,19 +80,13 @@ def normalize_source_citations(
         sources,
         start=1,
     ):
-        article_num = getattr(
-            source,
-            "article_num",
-            None,
-        )
-
         if not isinstance(
-            article_num,
-            str,
+            source,
+            ContextSource,
         ):
-            raise TypeError("article_num источника " "должен быть строкой!")
+            raise TypeError("Каждый source должен быть " "объектом ContextSource!")
 
-        article_num = article_num.strip()
+        article_num = source.article_num.strip()
 
         if not article_num:
             raise ValueError("article_num источника " "не должен быть пустым!")
@@ -93,7 +99,6 @@ def normalize_source_citations(
     def replace_article_reference(
         match: re.Match[str],
     ) -> str:
-
         prefix = match.group("prefix")
 
         article_num = match.group("number")
@@ -110,4 +115,7 @@ def normalize_source_citations(
         answer,
     )
 
-    return normalized_answer.strip()
+    if SOURCE_REFERENCE_PATTERN.search(normalized_answer):
+        return normalized_answer.strip()
+
+    return f"{normalized_answer.rstrip()}\n\n" "[Источник 1]"

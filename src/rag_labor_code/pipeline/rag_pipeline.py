@@ -5,7 +5,6 @@ from llama_cpp import Llama
 
 from dataclasses import dataclass
 
-from rag_labor_code.generation.saiga_generator import generate_answer
 from rag_labor_code.generation.citation_postprocessor import (
     normalize_source_citations,
 )

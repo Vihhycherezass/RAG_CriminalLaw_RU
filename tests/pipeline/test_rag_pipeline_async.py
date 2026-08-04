@@ -6,6 +6,9 @@ from rag_labor_code.pipeline.rag_pipeline import (
     RAGPipeline,
     RAGPipelineConfig,
 )
+from rag_labor_code.generation.context_builder import (
+    ContextSource,
+)
 
 
 class FakeNemoGuardrails:
@@ -83,7 +86,7 @@ def test_answer_async_uses_async_nemo_checks(
         lambda **kwargs: ["reranked"],
     )
 
-    source = SimpleNamespace(
+    source = ContextSource(
         article_num="91",
         title="Понятие рабочего времени",
         source="ТК РФ",
@@ -120,13 +123,14 @@ def test_answer_async_uses_async_nemo_checks(
 
     assert result.blocked is False
     assert result.reason is None
-    assert result.answer == "Нормальная продолжительность — 40 часов."
-
+    assert result.answer == (
+        "Нормальная продолжительность — 40 часов.\n\n" "[Источник 1]"
+    )
     assert nemo.input_calls == [question]
 
     assert nemo.output_calls == [
         (
             question,
-            "Нормальная продолжительность — 40 часов.",
+            ("Нормальная продолжительность — 40 часов.\n\n" "[Источник 1]"),
         )
     ]

@@ -386,7 +386,7 @@ def test_pipeline_passes_custom_configuration() -> None:
     )
 
     mock_answer_guardrail.assert_called_once_with(
-        answer="Ответ.",
+        answer="Ответ.\n\n[Источник 1]",
         source_count=1,
         require_sources=False,
     )
